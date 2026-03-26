@@ -1,12 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const links = [
     { to: "/feed", label: "Esplora" },
@@ -40,12 +42,26 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/">Accedi</Link>
-          </Button>
-          <Button variant="hero" size="sm" asChild>
-            <Link to="/">Diventa Creator</Link>
-          </Button>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground truncate max-w-[150px]">
+                {user.email}
+              </span>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-1" />
+                Esci
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth">Accedi</Link>
+              </Button>
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/auth">Diventa Creator</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -72,9 +88,16 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Button variant="hero" size="sm" className="w-full mt-2" asChild>
-            <Link to="/">Diventa Creator</Link>
-          </Button>
+          {user ? (
+            <Button variant="ghost" size="sm" className="w-full mt-2" onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-1" />
+              Esci
+            </Button>
+          ) : (
+            <Button variant="hero" size="sm" className="w-full mt-2" asChild>
+              <Link to="/auth" onClick={() => setMobileOpen(false)}>Accedi / Registrati</Link>
+            </Button>
+          )}
         </motion.div>
       )}
     </motion.nav>
